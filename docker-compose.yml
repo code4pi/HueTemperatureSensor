@@ -1,0 +1,35 @@
+version: '3'
+
+networks:
+  internal:
+
+services:
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=temperature
+    networks:
+      - internal
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - internal
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+
+  gettempsensor:
+    image: gettempsensor:latest
+    container_name: gettempsensor
+    env_file:
+      - env
+    networks:
+      - internal

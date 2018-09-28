@@ -1,0 +1,2 @@
+requests==2.19.1
+influxdb==5.2.0
