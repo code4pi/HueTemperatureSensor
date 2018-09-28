@@ -7,14 +7,13 @@ services:
   influxdb:
     image: influxdb:latest
     container_name: influxdb
-    ports:
-      - "8086:8086"
     environment:
       - INFLUXDB_DB=temperature
     networks:
       - internal
     volumes:
       - ./data/influxdb:/var/lib/influxdb
+    restart: on-failure
 
   grafana:
     image: grafana/grafana:latest
@@ -25,11 +24,16 @@ services:
       - internal
     volumes:
       - ./data/grafana:/var/lib/grafana
+    restart: on-failure
 
   gettempsensor:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: gettempsensor:latest
     container_name: gettempsensor
     env_file:
       - env
     networks:
       - internal
+    restart: on-failure
