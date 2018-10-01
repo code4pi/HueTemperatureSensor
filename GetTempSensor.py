@@ -3,6 +3,7 @@ import time
 import os
 import requests
 import re
+import signal
 from influxdb import InfluxDBClient
 
 HUE_BRIDGE_IP = os.environ.get('HUE_BRIDGE_IP')
@@ -12,6 +13,7 @@ INFLUX_DB_HOST = os.environ.get('INFLUX_DB_HOST', 'influxdb')
 INFLUX_DB_PORT = int(os.environ.get('INFLUX_DB_PORT', 8086))
 
 API_URL = 'http://{}/api/{}/sensors'.format(HUE_BRIDGE_IP, HUE_API_TOKEN)
+
 
 def format_id(id):
     return re.sub('-[0-9]*$', '', id)
@@ -51,6 +53,12 @@ def query_hue_sensors():
     }, filter(lambda x: x['type'] == 'ZLLTemperature', content.values())))
 
 
+def exit_gracefully():
+    exit(0)
+
+
+signal.signal(signal.SIGTERM, exit_gracefully)
+
 if __name__ == '__main__':
 
     client = InfluxDBClient(INFLUX_DB_HOST, INFLUX_DB_PORT, database='temperature')
@@ -67,4 +75,4 @@ if __name__ == '__main__':
             time.sleep(60.0 - ((time.time() - start_time) % 60.0))
 
     except KeyboardInterrupt:
-        exit(0)
+        exit_gracefully()
